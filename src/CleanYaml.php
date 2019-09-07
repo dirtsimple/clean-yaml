@@ -34,6 +34,7 @@ class CleanYaml {
 			if (
 				( $lines = substr_count($data, "\n") ) && # multi-line
 				false === strpos($data, "\r\n") &&        # no lossy CRLFs
+				isset($key) &&                            # not at the root
 				($lines > 1 || strlen($data) > $width - strlen($key)) # two LFs or too wide
 			) {
 				$indicator = substr_compare($data, ' ', 0, 1) ? '': strlen($indent);

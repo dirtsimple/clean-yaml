@@ -20,6 +20,12 @@ null
 2016-05-27T00:00:00+00:00
 ```
 
+That includes multi-line strings, since many YAML parsers (including Symfony's) don't support block literals at the top level:
+
+```yaml
+"this is a multi-line string that would be a block literal...\n if it weren't at the root.\n"
+```
+
 ### Text Chomping And Indents
 
 ```yaml 30
