@@ -1,22 +1,22 @@
 # Diff-Friendly, Readable YAML Output
 
-While Symfony's yaml component has a terrific parser and mostly-spec-compliant dumper, there are times when you really need your YAML output to be readable by a human being, and produce clean diffs when changed.  For example, both [Postmark](https://github.com/dirtsimple/postmark/) and [Imposer](https://github.com/dirtsimple/imposer/) generate YAML output from arbitrary WordPress data, and their diffs are an important part of both revision control and configuration management.
+While Symfony's Yaml component has a terrific parser and mostly-spec-compliant dumper, there are times when you really need your YAML output to be readable by a human being, and produce clean diffs when changed.  (For example, both [Postmark](https://github.com/dirtsimple/postmark/) and [Imposer](https://github.com/dirtsimple/imposer/) generate YAML output from arbitrary WordPress data, and their diffs are an important part of both revision control and configuration management.)
 
-While JSON (and Symfony's JSON-like output) *can* be diffed to some extent, the diffs tend to be "noisy", filled with extraneous punctuation changes and overly-long lines, especially when strings contain multiline text or HTML content.
+While JSON (and Symfony's JSON-like YAML output) *can* be diffed to some extent, the diffs tend to be "noisy", filled with extraneous punctuation changes and overly-long lines, especially when strings contain multiline text or HTML content.
 
-So this library provides a replacement for Symfony's YAML dumper, with a different outlining algorithm that prioritizes diffability and readability, while still producing spec-compliant output.  Specifically it:
+So this library provides a replacement for Symfony's YAML dumper, with a different outlining algorithm that prioritizes diffability and readability, while still producing spec-compliant output that's fully round-trippable.  Specifically it:
 
 * Only inlines data structures that can fit on the current line within a specified line length
-* Doesn't inline more than one level of nested data structure, unless all the children are empty (e.g. `[]` and `{}`)
-* Splits strings containing line feeds into multi-line output, with *correct chomping operators* (Symfony's `DUMP_MULTI_LINE_LITERAL_BLOCK` flag only works correctly for strings that end in *exactly one* `\n` -- no more, no less.)
+* Doesn't inline more than one level of nested data structure, unless all the child structures are empty (e.g. `[]` and `{}`)
+* Splits strings containing line feeds into multi-line output, with *correct chomping operators* (as Symfony's `DUMP_MULTI_LINE_LITERAL_BLOCK` flag only works correctly for strings that end in *exactly one* `\n` -- no more, no less.)
 
-Following these rules produces output that is still spec-compliant, but which avoids diffing large lines of inlined code, except in those cases where long lines are actually part of the data in question.  (The trade-off is that the outputs produced are invariably larger in both number of lines and total file size, since fewer things are condensed into single lines, and thus more indentation is produced.)
+Following these rules produces output that is still spec-compliant, but which avoids huge lines of inlined data, except where the long lines are themselves part of a string.  (The trade-off is that the outputs produced are invariably larger in both number of lines and total file size than those created by Symfony, since fewer things are inlined, and thus more linefeeds and indentation are included.)
 
-To use this library, require `dirtsimple/clean-yaml` and `use dirtsimple\CleanYaml;`, then `CleanYaml::dump($data, $width=120, $indent=2)`.
+To use this library, require `dirtsimple/clean-yaml` and `use dirtsimple\CleanYaml;`, then call `CleanYaml::dump($data)`, optionally passing extra arguments for the width (120 by default) and indent size (2 by default).  The return value is a string containing a complete YAML document that *always* includes a trailing newline.  (Unlike Symfony, which doesn't output a newline after a top-level scalar value.)
 
-Unlike Symfony, there are no flags to control the output: the library's behavior is roughly equivalent to using Symfony's `DUMP_EXCEPTION_ON_INVALID_TYPE | DUMP_OBJECT_AS_MAP | DUMP_MULTI_LINE_LITERAL_BLOCK | DUMP_EMPTY_ARRAY_AS_SEQUENCE`, except that various quirks in the last two flags' behavior are fixed.  (Symfony's output for literal blocks lacks proper chomp settings, and it sometimes dumps nested empty arrays as objects even though you've asked it not to; CleanYaml on the other hand treats a top-level empty array as a map, and all other empty arrays as sequences.)
+Also unlike Symfony, there are no flags to control the output: the library's behavior is roughly equivalent to using Symfony's `DUMP_EXCEPTION_ON_INVALID_TYPE | DUMP_OBJECT_AS_MAP | DUMP_MULTI_LINE_LITERAL_BLOCK | DUMP_EMPTY_ARRAY_AS_SEQUENCE`, except that various quirks in the last two flags' behavior are fixed.  (Symfony's output for literal blocks lacks proper chomp settings, and it sometimes dumps nested empty arrays as objects even though you've asked it not to; CleanYaml on the other hand treats a top-level empty array as a map, and all *other* empty arrays as sequences.)
 
-The `$width` setting is the number of characters wide you'd like the output to be.  Data structures will be inlined if they can fit within this space, including the current indent and key, if any.  Lines will still exceed this size for strings that are too long or wide to fit the space, or if the indentation gets too deep.  The `$indent` is the number of spaces by which each nesting level will indent.
+The second argument to `dump()` is the number of characters wide you'd like the output to be.  Data structures will be inlined if they can fit within this space, including the current indent and key, if any.  Lines will still exceed this size for strings that are too long or wide to fit the space, or if the indentation gets too deep.  The third argument is the number of spaces by which each nesting level will indent.
 
 Here's some sample output with the default settings:
 
