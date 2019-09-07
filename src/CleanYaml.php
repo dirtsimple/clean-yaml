@@ -12,16 +12,8 @@ class CleanYaml {
 		DUMP_FLAGS = Yaml::DUMP_OBJECT_AS_MAP | Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE |
 		             Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE;
 
-	static function parse($data, $filename=null) {
-		return Yaml12::parse($data);
-	}
-
 	static function dump($data, $width=120, $indent=2) {
 		return static::_dump($data, $width, str_repeat(' ',$indent));
-	}
-
-	static function parseFile($filename) {
-		return static::parse( file_get_contents($filename), $filename );
 	}
 
 	# Like Symfony's dump, but w/fixes for block chomping on multiline literals,
@@ -66,25 +58,29 @@ class CleanYaml {
 				return $prefix . Inline::dump($data, self::ROOT_FLAGS) . "\n";
 			}
 		}
-
 		# Not a leaf, it's a non-empty array (or array-like object)
 		$out = array();
-		$isMap = Inline::isHash($data);
 		$room = $width - strlen($key);
 		$width -= strlen($indent);
 		$nested = "$prefix$indent";
-		foreach ($data as $k => $v) {
-			$k = $isMap ? Inline::dump($k, self::DUMP_FLAGS).':' : '';
-			$out[] = $v = static::_dump($v, $width, $indent, $nested, $k);
-			$room -= substr_compare($v, "\n", -1) ? strlen($v): $room;
+		if ( Inline::isHash($data) ) {
+			foreach ($data as $k => $v) {
+				$k = Inline::dump($k, self::DUMP_FLAGS);
+				$out[] = $v = static::_dump($v, $width, $indent, $nested, "$k:");
+				$room = substr_compare($v, "\n", -1) ? $room - strlen($v): 0;
+			}
+			$k = "%s { %s }"; $v = ', ';
+		} else {
+			foreach ($data as $v) {
+				$out[] = $v = static::_dump($v, $width, $indent, $nested, '');
+				$room = substr_compare($v, "\n", -1) ? $room - strlen($v): 0;
+			}
+			$k = "%s [%s ]"; $v = ','; $prefix .= '-';
 		}
-
 		if ( $room >= 5 && isset($key) ) {  # allow room for [ ] / { }, but don't inline the root
-			return sprintf( $isMap ? "%s { %s }" : "%s [%s ]", $key, implode($isMap ? ', ' : ',', $out) );
+			return sprintf( $k, $key, implode($v, $out) );
 		}
-
 		$out = preg_replace('/([^\n])$/D', "\\1\n", $out);  # add missing LFs
-		if ( ! $isMap ) $prefix .= '-';
 		return (isset($key) ? "$key\n" : '') . $prefix . implode($prefix, $out);
 	}
 
@@ -103,6 +99,5 @@ class CleanYaml {
 				throw new DumpException("Invalid object for dumping");
 		}
 	}
-
 
 }

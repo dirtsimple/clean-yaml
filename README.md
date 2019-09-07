@@ -14,9 +14,9 @@ Following these rules produces output that is still spec-compliant, but which av
 
 To use this library, require `dirtsimple/clean-yaml` and `use dirtsimple\CleanYaml;`, then `CleanYaml::dump($data, $width=120, $indent=2)`.
 
-Unlike Symfony, there are no flags to control the output: the library's behavior is roughly equivalent to using Symfony's `DUMP_EXCEPTION_ON_INVALID_TYPE | DUMP_OBJECT_AS_MAP | DUMP_MULTI_LINE_LITERAL_BLOCK | DUMP_EMPTY_ARRAY_AS_SEQUENCE`, except that various bugs in the last two flags' behavior are fixed.  (Symfony's output for literal blocks lacks proper chomp settings, and it sometimes dumps nested empty arrays as objects even though you've asked it not to.)
+Unlike Symfony, there are no flags to control the output: the library's behavior is roughly equivalent to using Symfony's `DUMP_EXCEPTION_ON_INVALID_TYPE | DUMP_OBJECT_AS_MAP | DUMP_MULTI_LINE_LITERAL_BLOCK | DUMP_EMPTY_ARRAY_AS_SEQUENCE`, except that various quirks in the last two flags' behavior are fixed.  (Symfony's output for literal blocks lacks proper chomp settings, and it sometimes dumps nested empty arrays as objects even though you've asked it not to; CleanYaml on the other hand treats a top-level empty array as a map, and all other empty arrays as sequences.)
 
-The `$width` setting is the number of characters wide you'd like the output to be.  Data structures will be inlined if they can fit within this space, including the current indentation and key, if any.  Lines will still exceed this size for strings too long or wide to fit the space, or if indentation gets too deep.  The `$indent` is the number of spaces by which each nesting level will indent.
+The `$width` setting is the number of characters wide you'd like the output to be.  Data structures will be inlined if they can fit within this space, including the current indent and key, if any.  Lines will still exceed this size for strings that are too long or wide to fit the space, or if the indentation gets too deep.  The `$indent` is the number of spaces by which each nesting level will indent.
 
 Here's some sample output with the default settings:
 
