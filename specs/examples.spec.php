@@ -1,7 +1,7 @@
 <?php
 namespace dirtsimple\yaml\tests;
 
-use dirtsimple\Yaml;
+use dirtsimple\CleanYaml;
 use Symfony\Component\Yaml\Yaml as SYaml;
 use Symfony\Component\Yaml\Tag\TaggedValue;
 
@@ -22,7 +22,7 @@ function extract_suite($mdfile) {
 			$src = $m[4];
 			it("#$count at line $line_no ($w:$i)", function() use($src, $w, $i){
 				$data = SYaml::parse($src, SYaml::PARSE_DATETIME | SYaml::PARSE_CUSTOM_TAGS);
-				expect(Yaml::dump($data,$w,$i))->to->equal($src);
+				expect(CleanYaml::dump($data,$w,$i))->to->equal($src);
 			});
 			$count++;
 		}

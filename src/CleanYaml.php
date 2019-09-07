@@ -1,16 +1,16 @@
 <?php
 namespace dirtsimple;
 
-use Symfony\Component\Yaml\Yaml as Yaml12;
+use Symfony\Component\Yaml\Yaml as Yaml;
 use Symfony\Component\Yaml\Tag\TaggedValue;
 use Symfony\Component\Yaml\Inline;
 use Symfony\Component\Yaml\Exception\DumpException;
 
-class Yaml {
+class CleanYaml {
 	const
-		ROOT_FLAGS = Yaml12::DUMP_OBJECT_AS_MAP | Yaml12::DUMP_EXCEPTION_ON_INVALID_TYPE,
-		DUMP_FLAGS = Yaml12::DUMP_OBJECT_AS_MAP | Yaml12::DUMP_EXCEPTION_ON_INVALID_TYPE |
-		             Yaml12::DUMP_EMPTY_ARRAY_AS_SEQUENCE;
+		ROOT_FLAGS = Yaml::DUMP_OBJECT_AS_MAP | Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE,
+		DUMP_FLAGS = Yaml::DUMP_OBJECT_AS_MAP | Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE |
+		             Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE;
 
 	static function parse($data, $filename=null) {
 		return Yaml12::parse($data);

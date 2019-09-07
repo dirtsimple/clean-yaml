@@ -12,7 +12,7 @@ So this library provides a replacement for Symfony's YAML dumper, with a differe
 
 Following these rules produces output that is still spec-compliant, but which avoids diffing large lines of inlined code, except in those cases where long lines are actually part of the data in question.  (The trade-off is that the outputs produced are invariably larger in both number of lines and total file size, since fewer things are condensed into single lines, and thus more indentation is produced.)
 
-To use this library, require `dirtsimple/clean-yaml` and `use dirtsimple\Yaml;`, then `Yaml::dump($data, $width=120, $indent=2)`.
+To use this library, require `dirtsimple/clean-yaml` and `use dirtsimple\CleanYaml;`, then `CleanYaml::dump($data, $width=120, $indent=2)`.
 
 Unlike Symfony, there are no flags to control the output: the library's behavior is roughly equivalent to using Symfony's `DUMP_EXCEPTION_ON_INVALID_TYPE | DUMP_OBJECT_AS_MAP | DUMP_MULTI_LINE_LITERAL_BLOCK | DUMP_EMPTY_ARRAY_AS_SEQUENCE`, except that various bugs in the last two flags' behavior are fixed.  (Symfony's output for literal blocks lacks proper chomp settings, and it sometimes dumps nested empty arrays as objects even though you've asked it not to.)
 
