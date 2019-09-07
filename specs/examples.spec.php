@@ -3,6 +3,7 @@ namespace dirtsimple\yaml\tests;
 
 use dirtsimple\Yaml;
 use Symfony\Component\Yaml\Yaml as SYaml;
+use Symfony\Component\Yaml\Tag\TaggedValue;
 
 function extract_suite($mdfile) {
 	describe("$mdfile examples", function() use($mdfile) {
@@ -20,7 +21,7 @@ function extract_suite($mdfile) {
 			$i = $m[3] ?: 2;
 			$src = $m[4];
 			it("#$count at line $line_no ($w:$i)", function() use($src, $w, $i){
-				$data = SYaml::parse($src);
+				$data = SYaml::parse($src, SYaml::PARSE_DATETIME | SYaml::PARSE_CUSTOM_TAGS);
 				expect(Yaml::dump($data,$w,$i))->to->equal($src);
 			});
 			$count++;
@@ -28,4 +29,11 @@ function extract_suite($mdfile) {
 	});
 }
 
+describe("YAML dumper", function(){
+	it("inlines empty stdClass and ArrayObject instances");
+	it("sees tagged leaf values as leaves");
+	it("sees tagged non-leaf values as non-leaves");
+});
+
 extract_suite('README.md');
+extract_suite('specs/Specs.md');

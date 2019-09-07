@@ -51,7 +51,7 @@ class Yaml {
 				} else if ( ! substr_compare($data, "\n\n", -2) ) {
 					$indicator .= '+';  # keep trailing blank lines
 				}
-				if ( strlen($key) ) $key .= ' ';
+				if ( isset($key) ) $key .= ' ';
 				return "$key|$indicator\n" . preg_replace('/^/m', "$prefix", $data);
 			}
 			# ...else intentional fallthrough, since strings are leaves

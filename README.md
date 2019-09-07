@@ -38,15 +38,9 @@ Here's some sample output with the default settings:
     typography_font_weight: bold
     background_color: '#23a455'
     border_radius: { unit: px, top: '18', right: '18', bottom: '18', left: '18', isLinked: true }
-    align_tablet: center
-    align_mobile: center
-    _margin: { unit: px, top: '10', right: '0', bottom: '90', left: '0', isLinked: false }
-    _margin_tablet: { unit: px, top: '0', right: '0', bottom: '90', left: '0', isLinked: false }
-    _margin_mobile: { unit: px, top: '8', right: '0', bottom: '90', left: '0', isLinked: false }
-    _animation: fadeIn
-    animation_duration: slow
   elements: []
-  widgetType: button
+  timestamp: 2016-05-27T00:00:00+00:00
+  not_a_timestamp: '2016-05-27T00:00:00+00:00'
 ```
 
 And now the same data, but with a narrower width (40), and wider indent (4):
@@ -84,32 +78,8 @@ And now the same data, but with a narrower width (40), and wider indent (4):
             bottom: '18'
             left: '18'
             isLinked: true
-        align_tablet: center
-        align_mobile: center
-        _margin:
-            unit: px
-            top: '10'
-            right: '0'
-            bottom: '90'
-            left: '0'
-            isLinked: false
-        _margin_tablet:
-            unit: px
-            top: '0'
-            right: '0'
-            bottom: '90'
-            left: '0'
-            isLinked: false
-        _margin_mobile:
-            unit: px
-            top: '8'
-            right: '0'
-            bottom: '90'
-            left: '0'
-            isLinked: false
-        _animation: fadeIn
-        animation_duration: slow
     elements: []
-    widgetType: button
+    timestamp: 2016-05-27T00:00:00+00:00
+    not_a_timestamp: '2016-05-27T00:00:00+00:00'
 ```
 
