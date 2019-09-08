@@ -3,7 +3,6 @@ namespace dirtsimple\yaml\tests;
 
 use dirtsimple\CleanYaml;
 use Symfony\Component\Yaml\Yaml as SYaml;
-use Symfony\Component\Yaml\Tag\TaggedValue;
 
 function extract_suite($mdfile) {
 	describe("$mdfile examples", function() use($mdfile) {
@@ -36,8 +35,6 @@ describe("YAML dumper", function(){
 		$std = new \ArrayObject;
 		expect(CleanYaml::dump(array('x'=>$std)))->to->equal("x: {  }\n");
 	});
-	it("sees tagged leaf values as leaves");
-	it("sees tagged non-leaf values as non-leaves");
 });
 
 extract_suite('README.md');
