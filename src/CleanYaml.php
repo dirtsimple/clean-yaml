@@ -22,10 +22,10 @@ class CleanYaml {
 	#
 	# The overall goal is to optimize for revision control, such that diffs
 	# don't contain extraneous changes, and line breaks follow the source data
-    # (allowing in-line change highlighting where tooling allows).  For this
-    # reason, we don't do line folding, even though it would improve readability,
-    # because even a small change to such a string could rewrap the rest of the
-    # string, polluting the diff with semantically-irrelevant changes.
+	# (allowing in-line change highlighting where tooling allows).  For this
+	# reason, we don't do line folding, even though it would improve readability,
+	# because even a small change to such a string could rewrap the rest of the
+	# string, polluting the diff with semantically-irrelevant changes.
 	#
 	protected static function _dump($data, $width=120, $indent='  ', $prefix='', $key=null) {
 		# See if $data can be rendered as a simple (leaf) value
