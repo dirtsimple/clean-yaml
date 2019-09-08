@@ -76,7 +76,42 @@ a: []
 b: { c: d }
 ```
 
-### To-Do
+### Exact Width Inlining
 
-* Tagged values (leaf and non-leaf)
-* Correct inline structure fits (list and map)
+These data structures are rendered with width 25, and *just* fit:
+
+```yaml 25
+abc: { b: c, d: e, f: g }
+def: [ q, r, s, t, u, v ]
+ghi:
+  j: { x: z, z: a, a: b }
+  k: [ q, r, s, t, u, v ]
+```
+
+At width 24, they can't be inlined:
+
+```yaml 24
+abc:
+  b: c
+  d: e
+  f: g
+def:
+  - q
+  - r
+  - s
+  - t
+  - u
+  - v
+ghi:
+  j:
+    x: z
+    z: a
+    a: b
+  k:
+    - q
+    - r
+    - s
+    - t
+    - u
+    - v
+```

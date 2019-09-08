@@ -30,7 +30,12 @@ function extract_suite($mdfile) {
 }
 
 describe("YAML dumper", function(){
-	it("inlines empty stdClass and ArrayObject instances");
+	it("inlines empty stdClass and ArrayObject instances", function(){
+		$std = (object) array();
+		expect(CleanYaml::dump(array('x'=>$std)))->to->equal("x: {  }\n");
+		$std = new \ArrayObject;
+		expect(CleanYaml::dump(array('x'=>$std)))->to->equal("x: {  }\n");
+	});
 	it("sees tagged leaf values as leaves");
 	it("sees tagged non-leaf values as non-leaves");
 });

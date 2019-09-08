@@ -28,26 +28,52 @@ class CleanYaml {
 	# string, polluting the diff with semantically-irrelevant changes.
 	#
 	protected static function _dump($data, $width=120, $indent='  ', $prefix='', $key=null) {
+
+		# $key is null at the root of a dump, but for child nodes it's either
+		# "somekey:" (if the parent is a map) or "" (if a list).  The return
+		# value for child calls is either "$key $val" for inlined values,
+		# or "$key\n$val" (with $val indented and ending with \n) if the
+		# value can't be inlined.  The parent data structure is then inlined
+		# if all the children were inlined and they fit within the available
+		# width.  (Otherwise, the return values are indented and given newlines
+		# if needed.)  This dynamic approach produces a more readable result
+		# than simply inlining at a fixed depth, but still avoids backtracking
+		# or duplication of effort: every key and scalar value is rendered
+		# exactly once, then joined with commas or newlines and/or prefixed
+		# afterwards.
+
 		# See if $data can be rendered as a simple (leaf) value
 		switch(true) {
+
 		case is_string($data):
+			# Check for multi-line literal compatibility
 			if (
 				( $lines = substr_count($data, "\n") ) && # multi-line
 				false === strpos($data, "\r\n") &&        # no lossy CRLFs
-				isset($key) &&                            # not at the root
 				($lines > 1 || strlen($data) > $width - strlen($key)) # two LFs or too wide
+				&& isset($key)  # not at the root
 			) {
+				# If the string starts with a space, explicit indent depth is needed
 				$indicator = substr_compare($data, ' ', 0, 1) ? '': strlen($indent);
+
 				if ( substr_compare($data, "\n", -1) ) {
+					# String doesn't end in \n, it needs one
 					$data .= "\n";
-					$indicator .= '-';  # strip the \n we added
+					$indicator .= '-';  # tell parser to strip the \n we added
 				} else if ( ! substr_compare($data, "\n\n", -2) ) {
-					$indicator .= '+';  # keep trailing blank lines
+					# String ends in multiple \n, tell parser to keep them
+					$indicator .= '+';
 				}
-				if ( isset($key) ) $key .= ' ';
+
+				if ( isset($key) ) $key .= ' '; # separator after '-' or ':'
+
+				# Add $prefix to the start of every line in the string
 				return "$key|$indicator\n" . preg_replace('/^/m', "$prefix", $data);
 			}
-			# ...else intentional fallthrough, since strings are leaves
+
+			# if we get here, the string wasn't suitable for a literal block,
+			# so we intentionally fall through to the misc. scalar handling
+
 		case is_scalar($data):	# inline other common leaf cases and fall through
 		case empty($data):
 		case static::_is_leaf($data):
@@ -59,29 +85,45 @@ class CleanYaml {
 				return $prefix . Inline::dump($data, self::ROOT_FLAGS) . "\n";
 			}
 		}
+
 		# Not a leaf, it's a non-empty array (or array-like object)
-		$out = array();
-		$room = $width - strlen($key);
-		$width -= strlen($indent);
-		$nested = "$prefix$indent";
+		$out = array();  # collect 'key: val' or ' val' strings
+
+		# Room left on the current line if inlining (inlcudes parent indent
+		# since if we fit, we will be on a less-indented line)
+		$room = $width - strlen($key) + strlen($indent);
+		$width -= strlen($indent);      # width available for indented children
+		$nested = "$prefix$indent";     # prefix string for children
+
 		if ( Inline::isHash($data) ) {
+			# Map: render "key: val" pairs to be joined w/", " or "\n"
 			foreach ($data as $k => $v) {
 				$k = Inline::dump($k, self::DUMP_FLAGS);
 				$out[] = $v = static::_dump($v, $width, $indent, $nested, "$k:");
-				$room = substr_compare($v, "\n", -1) ? $room - strlen($v): 0;
+				# Track room, or drop to 0 if result ends with LF (can't inline if a value is multiline)
+				$room = substr_compare($v, "\n", -1) ? $room - strlen($v) - 2: 0;
 			}
 			$k = "%s { %s }"; $v = ', ';
 		} else {
+			# List: render " val" strings, to be joined w/ "," or "\n-"
 			foreach ($data as $v) {
 				$out[] = $v = static::_dump($v, $width, $indent, $nested, '');
-				$room = substr_compare($v, "\n", -1) ? $room - strlen($v): 0;
+				# Track room, or drop to 0 if result ends with LF (can't inline if a value is multiline)
+				$room = substr_compare($v, "\n", -1) ? $room - strlen($v) - 1: 0;
 			}
-			$k = "%s [%s ]"; $v = ','; $prefix .= '-';
+			$prefix .= '-';  # Add a '-' in front of items if we can't render inline
+			$k = "%s [%s ]"; $v = ',';  # items already have a leading space
 		}
-		if ( $room >= 5 && isset($key) ) {  # allow room for [ ] / { }, but don't inline the root
+
+		# If there's room and this is not a root rendering, join with commas
+		if ( $room >= 3 && isset($key) ) {  # allow room for [ ] / { }
 			return sprintf( $k, $key, implode($v, $out) );
 		}
-		$out = preg_replace('/([^\n])$/D', "\\1\n", $out);  # add missing LFs
+
+		# Otherwise, add a LF to the end of any entries that don't have them
+		$out = preg_replace('/([^\n])$/D', "\\1\n", $out);
+
+		# And prefix them all, optionally with the parent "-" or "key:" and a newline
 		return (isset($key) ? "$key\n" : '') . $prefix . implode($prefix, $out);
 	}
 
@@ -90,7 +132,7 @@ class CleanYaml {
 			case empty($data):       return true;
 			case is_array($data):    return false;
 			case ! is_object($data): return true;
-			case $data instanceof \stdClass || $data instanceof ArrayObject:
+			case $data instanceof \stdClass || $data instanceof \ArrayObject:
 				return empty( (array) $data );
 			case $data instanceof \DateTimeInterface:
 				return true;
