@@ -46,7 +46,7 @@ class CleanYaml {
 			if (
 				( $lines = \substr_count($data, "\n") ) && # multi-line
 				false === \strpos($data, "\r\n") &&        # no lossy CRLFs
-				($lines > 1 || \strlen($data) > $width - \strlen($key)) # two LFs or too wide
+				($lines > 1 || \strlen($data) > $width - \strlen($key ?? "")) # two LFs or too wide
 				&& isset($key)  # not at the root
 			) {
 				# If the string starts with a space, explicit indent depth is needed
@@ -83,7 +83,7 @@ class CleanYaml {
 
 			# Room left on the current line if inlining (inlcudes parent indent
 			# since if we fit, we will be on a less-indented line)
-			$room = $width - \strlen($key) + \strlen($indent);
+			$room = $width - \strlen($key ?? "") + \strlen($indent);
 			$width -= \strlen($indent);     # width available for indented children
 			$nested = "$prefix$indent";     # prefix string for children
 
