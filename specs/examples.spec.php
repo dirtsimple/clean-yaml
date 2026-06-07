@@ -21,7 +21,7 @@ function extract_suite($mdfile) {
 			$src = $m[4];
 			it("#$count at line $line_no ($w:$i)", function() use($src, $w, $i){
 				$data = SYaml::parse($src, SYaml::PARSE_DATETIME | SYaml::PARSE_CUSTOM_TAGS);
-				expect(CleanYaml::dump($data,$w,$i))->to->equal($src);
+				expect(CleanYaml::dump($data,$w,$i))->toEqual($src);
 			});
 			$count++;
 		}
@@ -31,9 +31,9 @@ function extract_suite($mdfile) {
 describe("YAML dumper", function(){
 	it("inlines empty stdClass and ArrayObject instances", function(){
 		$std = (object) array();
-		expect(CleanYaml::dump(array('x'=>$std)))->to->equal("x: {  }\n");
+		expect(CleanYaml::dump(array('x'=>$std)))->toEqual("x: {  }\n");
 		$std = new \ArrayObject;
-		expect(CleanYaml::dump(array('x'=>$std)))->to->equal("x: {  }\n");
+		expect(CleanYaml::dump(array('x'=>$std)))->toEqual("x: {  }\n");
 	});
 });
 

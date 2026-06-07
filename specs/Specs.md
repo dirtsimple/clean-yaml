@@ -115,3 +115,19 @@ ghi:
     - u
     - v
 ```
+
+And this renders differently by width:
+
+```yaml 9
+- { a: b }
+```
+
+```yaml 10
+- { a: b }
+```
+
+```yaml 8
+-
+  a: b
+```
+
